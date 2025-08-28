@@ -2,7 +2,7 @@
 // IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
 // You get this URL after deploying your Code.gs script as a "Web app".
 // =======================================================================================
-const APPS_SCRIPT_URL = 'PASTE_YOUR_WEB_APP_URL_HERE'; // <-- REPLACE THIS WITH YOUR ACTUAL URL
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6xFk3UQEpatlfScKdEyb4VXEdVqBh-UWbdzne6oV8-v_--yUR1375KyUnk5UAtb0v/exec'; // <-- REPLACE THIS WITH YOUR ACTUAL URL
 
 interface ApiResponse {
   success: boolean;
