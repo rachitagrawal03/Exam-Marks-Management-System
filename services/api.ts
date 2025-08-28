@@ -1,5 +1,5 @@
 // IMPORTANT: Replace this placeholder with your actual Google Apps Script Web App URL from Step 2 of the README.
-const APPS_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6xFk3UQEpatlfScKdEyb4VXEdVqBh-UWbdzne6oV8-v_--yUR1375KyUnk5UAtb0v/exec';
 
 interface ApiResponse {
   success: boolean;
