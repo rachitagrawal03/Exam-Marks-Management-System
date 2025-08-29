@@ -12,9 +12,9 @@ export const marksService = {
     // Destructure details. The 'class' property is passed directly to the backend.
     const { examType, class: className, section, subject } = details;
 
-    // The backend expects a simple array of objects.
+    // The backend expects a simple array of objects with the new studentId field.
     const marksData = marks.map(student => ({
-      rollNumber: student.rollNumber,
+      studentId: student.studentId,
       name: student.name,
       marks: student.marks,
     }));

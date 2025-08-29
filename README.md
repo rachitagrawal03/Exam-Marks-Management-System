@@ -16,11 +16,11 @@ Before deploying the script, ensure your Google Sheet is set up correctly.
 
 2.  **`Students Info` Sheet**:
     *   This sheet contains the list of all students.
-    *   Required columns: `Roll Number`, `Student Name`, `Class`, `Section`.
+    *   Required columns: `Class`, `Section`, `Student ID`, `Student Name`.
 
 3.  **`Marks` Sheet**:
     *   This sheet will store the submitted marks. You can create it empty.
-    *   Required columns (in this order): `Timestamp`, `Exam Type`, `Class`, `Section`, `Subject`, `Roll Number`, `Student Name`, `Marks`.
+    *   Required columns (in this order): `Timestamp`, `Exam Type`, `Class`, `Section`, `Student ID`, `Student Name`, and then a column for each subject (e.g., `English`, `Mathematics`).
 
 ---
 

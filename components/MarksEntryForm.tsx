@@ -160,7 +160,7 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
     const lowercasedQuery = filterQuery.toLowerCase();
     return studentMarks.filter(student =>
       student.name.toLowerCase().includes(lowercasedQuery) ||
-      String(student.rollNumber).includes(lowercasedQuery)
+      student.studentId.toLowerCase().includes(lowercasedQuery)
     );
   }, [studentMarks, filterQuery]);
 
@@ -320,7 +320,7 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
                                 value={filterQuery}
                                 onChange={(e) => setFilterQuery(e.target.value)}
                                 className="block w-full max-w-sm bg-white border border-gray-300 rounded-lg py-2 pl-10 pr-3 text-sm placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Filter by name or roll number..."
+                                placeholder="Filter by name or student ID..."
                             />
                         </div>
                     </div>
@@ -328,7 +328,7 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
                         <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roll No.</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student ID</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marks</th>
                             </tr>
@@ -339,7 +339,7 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
                                     const isInvalid = !!validationErrors[student.id];
                                     return (
                                     <tr key={student.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.rollNumber}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.studentId}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <input

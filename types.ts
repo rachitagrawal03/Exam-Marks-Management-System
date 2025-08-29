@@ -12,8 +12,8 @@ export interface Teacher {
 }
 
 export interface Student {
-  id: string;
-  rollNumber: number;
+  id: string; // Internal React key
+  studentId: string; // The actual, unique student identifier
   name: string;
 }
 
