@@ -1,151 +1,56 @@
-# Teacher's Marks Portal - Web API Deployment Guide
+# Teacher's Marks Portal - Deployment Guide
 
-This guide explains how to deploy your application using a modern Web API architecture, which allows your frontend (hosted on Netlify, Vercel, etc.) to communicate with your Google Sheet backend.
-
-## The Architecture
-
-Instead of using the restrictive `google.script.run`, we will turn your Google Apps Script into a standard Web API.
-
-1.  **Backend (Google Apps Script):** Your script will be deployed as a "Web App" that listens for `POST` requests. It will act as a secure API endpoint.
-2.  **Frontend (React App):** Your React app will be deployed to a static hosting service like Netlify. It will use standard `fetch` requests to communicate with your backend.
+This guide explains how to deploy the application, which consists of a React frontend and a Google Apps Script backend that uses your Google Sheet as a database.
 
 ---
 
-## Step 1: Backend Setup (Code.gs)
+## Step 1: Google Sheets Setup
 
-This is the most critical step. Your `Code.gs` file needs a "router" to handle incoming requests from your frontend and must include the correct headers to avoid CORS errors.
+Before deploying the script, ensure your Google Sheet is set up correctly.
 
-**Replace the entire contents of your `Code.gs` file with the code below.** Then, find the section at the bottom and paste your existing spreadsheet logic into the placeholder functions.
+1.  **`Teachers Info` Sheet**:
+    *   This sheet stores teacher credentials and their assignments.
+    *   **Crucially, it must not contain any merged cells.** Every row must be a complete record.
+    *   Required columns: `Teacher ID`, `Teacher Name`, `Class`, `Section`, `Subject`, `Password`.
+    *   For multiple sections or subjects for a single class in one row, use comma-separated values (e.g., `A, B`).
 
-```javascript
-/**
- * Handles all POST requests from the web app. Acts as a router.
- * This is the only entry point for your Netlify app.
- */
-function doPost(e) {
-  try {
-    const body = JSON.parse(e.postData.contents);
-    
-    if (!body.action) {
-      throw new Error("API action is missing.");
-    }
+2.  **`Students Info` Sheet**:
+    *   This sheet contains the list of all students.
+    *   Required columns: `Roll Number`, `Student Name`, `Class`, `Section`.
 
-    // Route the request to the correct function based on the 'action' parameter
-    const action = body.action;
-    const payload = body.payload;
-    let result;
-
-    switch (action) {
-      case 'validateTeacher':
-        result = validateTeacher(payload);
-        break;
-      case 'getStudents':
-        result = getStudents(payload);
-        break;
-      case 'submitExamMarks':
-        result = submitExamMarks(payload);
-        break;
-      default:
-        throw new Error(`Action "${action}" is not a valid action.`);
-    }
-
-    // Build the success response
-    const response = ContentService
-      .createTextOutput(JSON.stringify({ success: true, data: result }))
-      .setMimeType(ContentService.MimeType.JSON);
-
-    // CRITICAL: Explicitly set the CORS header to allow requests from any origin.
-    response.withHeaders({
-      "Access-Control-Allow-Origin": "*"
-    });
-
-    return response;
-
-  } catch (error) {
-    // Log the error for easier debugging in Google Apps Script logs.
-    console.error(`Error in doPost for action "${body ? body.action : 'unknown'}":`, error, "Request Body:", e.postData.contents);
-
-    // Build the error response
-    const errorResponse = ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: error.message }))
-      .setMimeType(ContentService.MimeType.JSON);
-
-    // Also add the CORS header to error responses.
-    errorResponse.withHeaders({
-      "Access-Control-Allow-Origin": "*"
-    });
-    
-    return errorResponse;
-  }
-}
-
-// ===============================================================
-// PASTE YOUR SPREADSHEET FUNCTIONS BELOW
-// IMPORTANT: Make sure each function takes a single 'payload' object.
-// ===============================================================
-
-function validateTeacher(payload) {
-  const { teacherId, password } = payload;
-  // Your existing validation logic here...
-  // Example: return { id: 'teacher01', name: 'Mr. John Doe', assignments: [...] };
-}
-
-function getStudents(payload) {
-  const { grade, section } = payload;
-  // Your existing logic to get students from the sheet...
-  // Example: return [{ id: 's001', rollNumber: 1, name: 'Alice' }];
-}
-
-function submitExamMarks(payload) {
-  const { examType, grade, section, marksData } = payload;
-  // Your existing logic to write marks to the sheet...
-  // Example: return 'Success';
-}
-```
+3.  **`Marks` Sheet**:
+    *   This sheet will store the submitted marks. You can create it empty.
+    *   Required columns (in this order): `Timestamp`, `Exam Type`, `Class`, `Section`, `Subject`, `Roll Number`, `Student Name`, `Marks`.
 
 ---
 
-## Step 2: Deploy the Backend
+## Step 2: Backend Deployment (`Code.gs`)
 
-1.  Open your Google Apps Script project.
-2.  Click **Deploy > New deployment**.
-3.  Click the gear icon (⚙️) next to "Select type" and choose **Web app**.
-4.  In the dialog:
-    *   **Description:** A meaningful description, e.g., "Teacher Portal API v2".
-    *   **Execute as:** `Me`
-    *   **Who has access:** `Anyone` (This is required for Netlify to be able to access it).
-5.  Click **Deploy**.
-6.  **Authorize permissions** if prompted.
-7.  Copy the **Web app URL**. This is your API endpoint.
+The backend logic resides in the `Code.gs` file and acts as the API for your web app.
 
-**IMPORTANT:** If you make changes to `Code.gs` later, you must redeploy by going to **Deploy > Manage deployments**, selecting your deployment, clicking the pencil icon (✏️) to edit, and choosing **"New version"** from the "Version" dropdown.
+**Action:**
 
----
-
-## Step 3: Configure the Frontend
-
-1.  Open the file `src/services/api.ts` in your React project.
-2.  You will see a constant named `APPS_SCRIPT_URL`.
-3.  **Paste your Web app URL** from the previous step as the value for this constant.
-
-```typescript
-// src/services/api.ts
-
-// IMPORTANT: Replace this placeholder with your actual Google Apps Script Web App URL.
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
-```
+1.  Open your Google Sheet.
+2.  Go to **Extensions > Apps Script**.
+3.  If you see a default `Code.gs` file, delete its content.
+4.  Copy the **entire contents** from the `Code.gs` file provided in this project and paste it into your script editor.
+5.  Deploy the script as a Web App:
+    *   Click **Deploy > New deployment**.
+    *   Select Type: **Web app**.
+    *   For "Execute as," select **Me**.
+    *   For "Who has access," select **Anyone**.
+    *   Click **Deploy**.
+6.  **Important:** Copy the **Web app URL** provided after deployment. You will need it in the next step.
 
 ---
 
-## Step 4: Deploy the Frontend
+## Step 3: Frontend Configuration (`services/api.ts`)
 
-You can now deploy your React application to any static hosting service like Netlify.
+Connect your frontend to your newly deployed backend.
 
----
+**Action:**
 
-## Troubleshooting
+1.  Open the `services/api.ts` file in your project.
+2.  Paste the **Web app URL** you copied from Google Apps Script into the `APPS_SCRIPT_URL` constant, replacing the placeholder.
 
-*   **CORS or "Failed to fetch" Error:** This is almost always a backend issue.
-    1.  **Check Deployment Settings:** Make sure "Who has access" is set to `Anyone`.
-    2.  **Redeploy:** Ensure you have created a **New version** after saving your `Code.gs` changes. Old versions will not have the fix.
-    3.  **Check Logs:** Open your Apps Script project and go to the "Executions" tab to see if any errors are being logged when your app makes a request.
+Your application is now fully configured and ready.

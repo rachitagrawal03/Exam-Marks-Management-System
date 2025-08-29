@@ -1,8 +1,28 @@
 // =======================================================================================
-// IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
-// You get this URL after deploying your Code.gs script as a "Web app".
+//
+//                              !!! CRITICAL ACTION REQUIRED !!!
+//
 // =======================================================================================
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6xFk3UQEpatlfScKdEyb4VXEdVqBh-UWbdzne6oV8-v_--yUR1375KyUnk5UAtb0v/exec'; // <-- REPLACE THIS WITH YOUR ACTUAL URL
+//
+// 1. DEPLOY YOUR GOOGLE APPS SCRIPT
+//    - Open your Google Apps Script project.
+//    - Click "Deploy" > "New deployment".
+//    - Select "Web app" as the type.
+//    - Set "Who has access" to "Anyone".
+//    - Click "Deploy".
+//
+// 2. COPY THE WEB APP URL
+//    - After deploying, a URL will be provided. Copy it.
+//
+// 3. PASTE THE URL BELOW
+//    - Replace the placeholder text '!!!_PASTE_YOUR_URL_HERE_!!!' with the URL you just copied.
+//
+// =======================================================================================
+
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6xFk3UQEpatlfScKdEyb4VXEdVqBh-UWbdzne6oV8-v_--yUR1375KyUnk5UAtb0v/exec'; // <-- PASTE YOUR URL HERE
+
+// =======================================================================================
+
 
 interface ApiResponse {
   success: boolean;
@@ -18,7 +38,7 @@ interface ApiResponse {
  * @throws An error if the API call fails or the backend returns an error.
  */
 async function post(action: string, payload: object): Promise<any> {
-  if (APPS_SCRIPT_URL.includes('PASTE_YOUR_WEB_APP_URL_HERE')) {
+  if (APPS_SCRIPT_URL.includes('!!!_PASTE_YOUR_URL_HERE_!!!')) {
       const errorMessage = "CRITICAL: The Google Apps Script URL has not been configured. Please open services/api.ts and replace the placeholder URL.";
       console.error(errorMessage);
       throw new Error(errorMessage);

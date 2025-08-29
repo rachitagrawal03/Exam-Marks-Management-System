@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Teacher, StudentMark, ExamDetails } from '../types';
 import { studentService } from '../services/studentService';
@@ -28,33 +29,47 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [validationErrors, setValidationErrors] = useState<{ [studentId: string]: string | undefined }>({});
+  const [filterQuery, setFilterQuery] = useState('');
 
   // Memoize derived lists from teacher assignments
-  // FIX: Explicitly type useMemo to ensure correct type inference for availableClasses. This resolves errors with parseInt and passing this array to renderSelect.
   const availableClasses: string[] = useMemo(() => [...new Set(teacher.assignments.map(a => a.class))].sort((a, b) => parseInt(a) - parseInt(b)), [teacher.assignments]);
-  // FIX: Explicitly type useMemo to ensure correct type inference for availableSubjects. This resolves errors in useEffect, resetForm, and passing this array to renderSelect.
-  const availableSubjects: string[] = useMemo(() => [...new Set(teacher.assignments.map(a => a.subject))], [teacher.assignments]);
-  // FIX: Explicitly type useMemo to ensure correct type inference for availableSections. This resolves errors with passing this array to renderSelect.
+  
   const availableSections: string[] = useMemo(() => {
     if (!examDetails.class) return [];
     return [...new Set(teacher.assignments.filter(a => a.class === examDetails.class).map(a => a.section))].sort();
   }, [teacher.assignments, examDetails.class]);
 
-  // Effect to handle auto-selection and resets
-   useEffect(() => {
-    // If there's only one subject, auto-select it.
+  // FIX: Subjects are now correctly filtered based on the selected class AND section.
+  const availableSubjects: string[] = useMemo(() => {
+    if (!examDetails.class || !examDetails.section) return [];
+    return [...new Set(teacher.assignments
+      .filter(a => a.class === examDetails.class && a.section === examDetails.section)
+      .map(a => a.subject))];
+  }, [teacher.assignments, examDetails.class, examDetails.section]);
+
+
+  // Effect to handle auto-selection of the subject
+  useEffect(() => {
+    // If there's only one subject for the selected class/section, auto-select it.
+    // This provides a better user experience by removing an unnecessary click.
     if (availableSubjects.length === 1) {
       setExamDetails(prev => ({ ...prev, subject: availableSubjects[0] }));
     }
   }, [availableSubjects]);
 
+  // FIX: When a dropdown selection changes, reset the dependent dropdowns to prevent invalid states.
   const handleDetailChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setExamDetails(prev => {
         const newState = { ...prev, [name]: value };
-        // If class is changed, reset section as the old one might be invalid
+        // If class is changed, reset section and subject
         if (name === 'class') {
             newState.section = '';
+            newState.subject = '';
+        }
+        // If section is changed, reset subject
+        if (name === 'section') {
+            newState.subject = '';
         }
         return newState;
     });
@@ -66,6 +81,7 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
       setIsLoadingStudents(true);
       setStudentMarks([]);
       setValidationErrors({});
+      setFilterQuery('');
       try {
         const students = await studentService.getStudents(examDetails.class, examDetails.section);
         setStudentMarks(students.map(s => ({ ...s, marks: '' })));
@@ -108,12 +124,24 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
   const areDetailsComplete = Object.values(examDetails).every(val => val !== '');
   const hasValidationErrors = useMemo(() => Object.values(validationErrors).some(e => !!e), [validationErrors]);
 
+  const filteredStudents = useMemo(() => {
+    if (!filterQuery) {
+      return studentMarks;
+    }
+    const lowercasedQuery = filterQuery.toLowerCase();
+    return studentMarks.filter(student =>
+      student.name.toLowerCase().includes(lowercasedQuery) ||
+      String(student.rollNumber).includes(lowercasedQuery)
+    );
+  }, [studentMarks, filterQuery]);
 
+  // FIX: Simplify the form reset logic. Subject will be auto-selected by the useEffect if applicable.
   const resetForm = () => {
-     setExamDetails({ examType: '', class: '', section: '', subject: availableSubjects.length === 1 ? availableSubjects[0] : '' });
+     setExamDetails({ examType: '', class: '', section: '', subject: '' });
      setStudentMarks([]);
      setValidationErrors({});
      setSubmissionState('idle');
+     setFilterQuery('');
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -249,6 +277,24 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
                 {studentMarks.length > 0 && (
                 <>
                     <h2 className="text-xl font-semibold text-gray-700 border-b pb-3 mb-6 mt-8">Student Marks</h2>
+                    <div className="mb-4">
+                        <label htmlFor="student-filter" className="sr-only">Filter students</label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
+                                <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                id="student-filter"
+                                value={filterQuery}
+                                onChange={(e) => setFilterQuery(e.target.value)}
+                                className="block w-full max-w-sm bg-white border border-gray-300 rounded-lg py-2 pl-10 pr-3 text-sm placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Filter by name or roll number..."
+                            />
+                        </div>
+                    </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
@@ -259,32 +305,40 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {studentMarks.map((student, index) => {
-                                const isInvalid = !!validationErrors[student.id];
-                                return (
-                                <tr key={student.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.rollNumber}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <input
-                                            type="text"
-                                            value={student.marks}
-                                            onChange={(e) => handleMarksChange(student.id, e.target.value)}
-                                            className={`w-24 sm:w-28 text-center text-lg font-medium text-gray-700 bg-gray-50 border rounded-lg transition-all duration-200 ease-in-out hover:border-gray-300 focus:bg-white focus:outline-none placeholder-gray-400 ${
-                                                isInvalid
-                                                ? 'border-red-500 ring-2 ring-red-200 focus:border-red-500'
-                                                : 'border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200'
-                                            }`}
-                                            placeholder="N/A"
-                                            required
-                                            aria-invalid={isInvalid}
-                                            aria-describedby={isInvalid ? `${student.id}-error` : undefined}
-                                        />
-                                        {isInvalid && <p id={`${student.id}-error`} className="text-red-600 text-xs mt-1">{validationErrors[student.id]}</p>}
+                            {filteredStudents.length > 0 ? (
+                                filteredStudents.map((student, index) => {
+                                    const isInvalid = !!validationErrors[student.id];
+                                    return (
+                                    <tr key={student.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.rollNumber}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <input
+                                                type="text"
+                                                value={student.marks}
+                                                onChange={(e) => handleMarksChange(student.id, e.target.value)}
+                                                className={`w-24 sm:w-28 text-center text-lg font-medium text-gray-700 bg-gray-50 border rounded-lg transition-all duration-200 ease-in-out hover:border-gray-300 focus:bg-white focus:outline-none placeholder-gray-400 ${
+                                                    isInvalid
+                                                    ? 'border-red-500 ring-2 ring-red-200 focus:border-red-500'
+                                                    : 'border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200'
+                                                }`}
+                                                placeholder="N/A"
+                                                required
+                                                aria-invalid={isInvalid}
+                                                aria-describedby={isInvalid ? `${student.id}-error` : undefined}
+                                            />
+                                            {isInvalid && <p id={`${student.id}-error`} className="text-red-600 text-xs mt-1">{validationErrors[student.id]}</p>}
+                                        </td>
+                                    </tr>
+                                    );
+                                })
+                            ) : (
+                                <tr>
+                                    <td colSpan={3} className="text-center py-10 px-6 text-gray-500">
+                                        No students match your filter.
                                     </td>
                                 </tr>
-                                );
-                            })}
+                            )}
                         </tbody>
                         </table>
                     </div>

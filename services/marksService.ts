@@ -9,8 +9,8 @@ export const marksService = {
    * @returns A promise that resolves when the submission is successful.
    */
   submitMarks: (details: ExamDetails, marks: StudentMark[]): Promise<void> => {
-    // Destructure all necessary details, including the subject.
-    const { examType, class: grade, section, subject } = details;
+    // Destructure details. The 'class' property is passed directly to the backend.
+    const { examType, class: className, section, subject } = details;
 
     // The backend expects a simple array of objects.
     const marksData = marks.map(student => ({
@@ -19,8 +19,7 @@ export const marksService = {
       marks: student.marks,
     }));
 
-    // CRITICAL FIX: Add the 'subject' to the payload so the backend knows
-    // which subject these marks are for.
-    return api.post('submitExamMarks', { examType, grade, section, subject, marksData });
+    // Send the payload with 'class' as the key.
+    return api.post('submitExamMarks', { examType, class: className, section, subject, marksData });
   },
 };
