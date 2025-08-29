@@ -1,5 +1,5 @@
 {
-  "name": "Copy of Copy of Teacher's Marks Portal",
+  "name": "Marks Portal Main App",
   "description": "An application for teachers to log in and submit student marks for various exams. Data is intended to be synced with a Google Sheet.",
   "requestFramePermissions": []
 }

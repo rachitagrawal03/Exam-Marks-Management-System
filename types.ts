@@ -19,6 +19,7 @@ export interface Student {
 
 export interface StudentMark extends Student {
   marks: string; // Use string to allow empty input
+  status: 'Present' | 'Absent';
 }
 
 export interface ExamDetails {
@@ -26,5 +27,7 @@ export interface ExamDetails {
   class: string;
   section: string;
   subject: string;
+  examDate: string;
   teacherName: string;
+  maximumMarks: string;
 }

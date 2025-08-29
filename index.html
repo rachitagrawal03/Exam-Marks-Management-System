@@ -40,6 +40,63 @@
   .animate-modal-pop-in {
     animation: modal-pop-in 0.3s ease-out forwards;
   }
+  
+  /* Styles for dropdowns to show placeholder color */
+  select:required:invalid {
+    color: #9ca3af; /* Tailwind's gray-400 */
+  }
+  select option {
+    color: #1f2937; /* Tailwind's text-slate-800 */
+  }
+
+  /* --- Robust Date Picker Styling --- */
+  .date-input-wrapper {
+    position: relative;
+  }
+  /* Custom calendar icon */
+  .date-input-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 0.75rem; /* 12px */
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    width: 1.25rem; /* 20px */
+    height: 1.25rem; /* 20px */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="%236b7280" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18" /></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  /* Style the placeholder text */
+  input[type="date"]::before {
+    content: attr(placeholder);
+    position: absolute;
+    color: #9ca3af; /* gray-400 */
+    width: calc(100% - 2.5rem); /* prevent overlap with icon */
+  }
+  input[type="date"]:valid::before {
+    display: none;
+  }
+  /* Hide the native date text until a date is chosen */
+  input[type="date"] {
+    color: transparent;
+  }
+  input[type="date"]:focus,
+  input[type="date"]:valid {
+    color: #1f2937; /* text-slate-900 */
+  }
+  /* The clickable overlay to open the calendar */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
 </style>
 </head>
   <body class="bg-slate-50 font-sans">
