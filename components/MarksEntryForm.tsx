@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Teacher, StudentMark, ExamDetails } from '../types';
 import { studentService } from '../services/studentService';
@@ -48,14 +46,45 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
   }, [teacher.assignments, examDetails.class, examDetails.section]);
 
 
-  // Effect to handle auto-selection of the subject
+  // Effect to handle cascading auto-selection for section and subject.
   useEffect(() => {
-    // If there's only one subject for the selected class/section, auto-select it.
-    // This provides a better user experience by removing an unnecessary click.
-    if (availableSubjects.length === 1) {
-      setExamDetails(prev => ({ ...prev, subject: availableSubjects[0] }));
+    // Case 1: A class is selected, and it has only one section.
+    if (examDetails.class && availableSections.length === 1) {
+      const singleSection = availableSections[0];
+
+      // Calculate the subjects for that single section ahead of time.
+      const subjectsForSingleSection = [...new Set(
+        teacher.assignments
+          .filter(a => a.class === examDetails.class && a.section === singleSection)
+          .map(a => a.subject)
+      )];
+
+      // Case 1a: That single section ALSO has only one subject. Cascade!
+      if (subjectsForSingleSection.length === 1) {
+        const singleSubject = subjectsForSingleSection[0];
+        // Update both at once if they are not already set.
+        if (examDetails.section !== singleSection || examDetails.subject !== singleSubject) {
+          setExamDetails(prev => ({ ...prev, section: singleSection, subject: singleSubject }));
+        }
+        return; // Stop here, we're done.
+      }
+
+      // Case 1b: Single section, but multiple subjects. Just set the section.
+      if (examDetails.section !== singleSection) {
+        setExamDetails(prev => ({ ...prev, section: singleSection, subject: '' }));
+      }
+      return; // Stop here.
     }
-  }, [availableSubjects]);
+
+    // Case 2: A section is selected (manually), and it has only one subject.
+    if (examDetails.section && availableSubjects.length === 1) {
+      const singleSubject = availableSubjects[0];
+      if (examDetails.subject !== singleSubject) {
+        setExamDetails(prev => ({ ...prev, subject: singleSubject }));
+      }
+    }
+  }, [examDetails.class, examDetails.section, examDetails.subject, availableSections, availableSubjects, teacher.assignments]);
+
 
   // FIX: When a dropdown selection changes, reset the dependent dropdowns to prevent invalid states.
   const handleDetailChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -204,7 +233,7 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
                 onChange={handleDetailChange}
                 className="w-full appearance-none bg-white px-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                 required
-                disabled={name === 'subject' && availableSubjects.length === 1}
+                disabled={name === 'subject' && availableSubjects.length === 1 && !!examDetails.section}
             >
                 <option value="" disabled>Select {label}</option>
                 {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
