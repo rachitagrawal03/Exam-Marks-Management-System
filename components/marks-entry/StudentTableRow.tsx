@@ -5,11 +5,12 @@ interface StudentTableRowProps {
   student: StudentMark;
   onMarksChange: (studentId: string, marks: string) => void;
   onStatusChange: (studentId: string) => void;
+  onRemarkChange: (studentId: string, remark: string) => void;
   validationError: string | undefined;
   isSubmitting: boolean;
 }
 
-const StudentTableRow: React.FC<StudentTableRowProps> = ({ student, onMarksChange, onStatusChange, validationError, isSubmitting }) => {
+const StudentTableRow: React.FC<StudentTableRowProps> = ({ student, onMarksChange, onStatusChange, onRemarkChange, validationError, isSubmitting }) => {
   return (
     <tr className="hover:bg-slate-50 transition-colors duration-200">
       <td className="px-6 py-4 whitespace-nowrap text-left text-sm text-slate-600 font-mono">{student.studentId}</td>
@@ -50,6 +51,16 @@ const StudentTableRow: React.FC<StudentTableRowProps> = ({ student, onMarksChang
             <p id={`error-${student.id}`} className="mt-1.5 text-xs text-red-600">{validationError}</p>
           )}
         </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <input
+          type="text"
+          value={student.remark || ''}
+          onChange={(e) => onRemarkChange(student.id, e.target.value)}
+          disabled={student.status === 'Absent' || isSubmitting}
+          className={`w-56 p-2 text-left border rounded-md transition-all duration-200 border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-300 ${student.status === 'Absent' ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-white text-slate-700'}`}
+          placeholder="Add a remark..."
+        />
       </td>
     </tr>
   );

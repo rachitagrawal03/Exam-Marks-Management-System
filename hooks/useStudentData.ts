@@ -16,7 +16,7 @@ export const useStudentData = (examDetails: Omit<ExamDetails, 'teacherName'>) =>
       setFilterQuery('');
       try {
         const students = await studentService.getStudents(examDetails.class, examDetails.section);
-        setStudentMarks(students.map(s => ({ ...s, marks: '', status: 'Present' })));
+        setStudentMarks(students.map(s => ({ ...s, marks: '', status: 'Present', remark: '' })));
       } catch (error) {
         console.error("Failed to fetch students:", error);
         // We can expose an error state to the UI if needed
@@ -76,6 +76,14 @@ export const useStudentData = (examDetails: Omit<ExamDetails, 'teacherName'>) =>
       return newErrors;
     });
   };
+  
+  const handleRemarkChange = (studentId: string, remark: string) => {
+    setStudentMarks(prevMarks =>
+      prevMarks.map(student =>
+        student.id === studentId ? { ...student, remark } : student
+      )
+    );
+  };
 
   const filteredStudents = useMemo(() => {
     if (!filterQuery) {
@@ -104,6 +112,7 @@ export const useStudentData = (examDetails: Omit<ExamDetails, 'teacherName'>) =>
     filteredStudents,
     handleMarksChange,
     handleStatusChange,
+    handleRemarkChange,
     validationErrors,
     setValidationErrors,
     hasValidationErrors,

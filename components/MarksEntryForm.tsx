@@ -35,6 +35,7 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
     filteredStudents,
     handleMarksChange,
     handleStatusChange,
+    handleRemarkChange,
     validationErrors,
     setValidationErrors,
     hasValidationErrors,
@@ -110,6 +111,7 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
                             students={filteredStudents}
                             onMarksChange={handleMarksChange}
                             onStatusChange={handleStatusChange}
+                            onRemarkChange={handleRemarkChange}
                             validationErrors={validationErrors}
                             filterQuery={filterQuery}
                             onFilterChange={(e) => setFilterQuery(e.target.value)}

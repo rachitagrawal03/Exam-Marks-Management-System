@@ -39,8 +39,8 @@ export const useExamDetails = (teacherAssignments: Assignment[]) => {
       case 'Half Yearly':
         maxMarks = '80';
         break;
-      case 'Final Exam':
-        maxMarks = '100';
+      case 'Annual Exam':
+        maxMarks = '80';
         break;
       default:
         maxMarks = '';

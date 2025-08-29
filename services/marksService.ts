@@ -18,6 +18,7 @@ export const marksService = {
       name: student.name,
       marks: student.marks,
       status: student.status,
+      remark: student.remark,
     }));
 
     // Reformat date from YYYY-MM-DD to MM/DD/YYYY for submission.

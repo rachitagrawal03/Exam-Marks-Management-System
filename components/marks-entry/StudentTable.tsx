@@ -7,6 +7,7 @@ interface StudentTableProps {
   students: StudentMark[];
   onMarksChange: (studentId: string, marks: string) => void;
   onStatusChange: (studentId: string) => void;
+  onRemarkChange: (studentId: string, remark: string) => void; // Added prop
   validationErrors: { [studentId: string]: string | undefined };
   filterQuery: string;
   onFilterChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -18,6 +19,7 @@ const StudentTable: React.FC<StudentTableProps> = ({
   students,
   onMarksChange,
   onStatusChange,
+  onRemarkChange, // Destructured prop
   validationErrors,
   filterQuery,
   onFilterChange,
@@ -66,6 +68,7 @@ const StudentTable: React.FC<StudentTableProps> = ({
               <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Student Name</th>
               <th scope="col" className="px-6 py-3 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">Status</th>
               <th scope="col" className="px-6 py-3 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">Marks</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Remark</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
@@ -76,13 +79,14 @@ const StudentTable: React.FC<StudentTableProps> = ({
                         student={student}
                         onMarksChange={onMarksChange}
                         onStatusChange={onStatusChange}
+                        onRemarkChange={onRemarkChange}
                         validationError={validationErrors[student.id]}
                         isSubmitting={isSubmitting}
                     />
                 ))
             ) : (
                 <tr>
-                    <td colSpan={4} className="text-center py-10 text-slate-500">
+                    <td colSpan={5} className="text-center py-10 text-slate-500">
                         No students found matching your filter.
                     </td>
                 </tr>

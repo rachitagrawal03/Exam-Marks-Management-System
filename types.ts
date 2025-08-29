@@ -20,6 +20,7 @@ export interface Student {
 export interface StudentMark extends Student {
   marks: string; // Use string to allow empty input
   status: 'Present' | 'Absent';
+  remark: string;
 }
 
 export interface ExamDetails {
