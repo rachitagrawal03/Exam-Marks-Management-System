@@ -1,4 +1,3 @@
-
 import type { Teacher } from '../types';
 import { api } from './api';
 
@@ -11,6 +10,8 @@ export const authService = {
    */
   login: async (id: string, pass: string): Promise<Teacher> => {
     // The payload keys must match what the backend 'validateTeacher' function expects.
+    // The teacher ID is passed as a string to ensure that IDs with leading zeros (e.g., '003')
+    // are handled correctly as text, preventing any potential type coercion.
     const responseData = await api.post('validateTeacher', { teacherId: id, password: pass });
 
     // FIX: Ensure the response matches the frontend's data model.

@@ -6,6 +6,7 @@ import { useStudentData } from '../hooks/useStudentData';
 import { useMarksSubmission } from '../hooks/useMarksSubmission';
 
 import SuccessModal from './common/SuccessModal';
+import SubmittingModal from './common/SubmittingModal'; // Added import for the submitting modal
 import Header from './marks-entry/Header';
 import ExamDetailsForm from './marks-entry/ExamDetailsForm';
 import StudentTable from './marks-entry/StudentTable';
@@ -72,7 +73,12 @@ const MarksEntryForm: React.FC<MarksEntryFormProps> = ({ teacher, onLogout }) =>
 
   return (
     <>
-      <SuccessModal show={submissionState === 'success'} message={successMessage} subMessage="The form will reset shortly." />
+      <SubmittingModal show={isSubmitting} />
+      <SuccessModal 
+        show={submissionState === 'success'} 
+        message={successMessage} 
+        subMessage={`Students ${examDetails.subject} marks have been submitted successfully.`} 
+      />
       <div className="min-h-screen bg-slate-100 p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
           <Header teacherName={teacher.name} onLogout={onLogout} />
