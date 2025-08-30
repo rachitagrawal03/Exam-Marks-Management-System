@@ -4,7 +4,8 @@ import type { ExamDetails } from '../../types';
 const EXAM_TYPES = ['CT1', 'CT2', 'UT', 'Half Yearly', 'Annual Exam'];
 
 interface ExamDetailsFormProps {
-  examDetails: Omit<ExamDetails, 'teacherName'>;
+  // FIX: Changed type to Omit<ExamDetails, 'teacherName' | 'teacherId'> to match the updated state type from the useExamDetails hook.
+  examDetails: Omit<ExamDetails, 'teacherName' | 'teacherId'>;
   onDetailChange: (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => void;
   disabled: boolean;
   availableClasses: string[];

@@ -2,7 +2,9 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Teacher, Assignment, ExamDetails } from '../types';
 
 export const useExamDetails = (teacherAssignments: Assignment[]) => {
-  const [examDetails, setExamDetails] = useState<Omit<ExamDetails, 'teacherName'>>({
+  // FIX: The exam details state should not include teacherId, which is added at submission.
+  // Changed the type to Omit<ExamDetails, 'teacherName' | 'teacherId'> to fix the type errors.
+  const [examDetails, setExamDetails] = useState<Omit<ExamDetails, 'teacherName' | 'teacherId'>>({
     examType: '',
     class: '',
     section: '',

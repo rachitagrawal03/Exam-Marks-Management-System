@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { StudentMark, ExamDetails } from '../types';
 import { studentService } from '../services/studentService';
 
-export const useStudentData = (examDetails: Omit<ExamDetails, 'teacherName'>) => {
+// FIX: Changed type to Omit<ExamDetails, 'teacherName' | 'teacherId'> to match the updated state type from the useExamDetails hook.
+export const useStudentData = (examDetails: Omit<ExamDetails, 'teacherName' | 'teacherId'>) => {
   const [studentMarks, setStudentMarks] = useState<StudentMark[]>([]);
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [filterQuery, setFilterQuery] = useState('');

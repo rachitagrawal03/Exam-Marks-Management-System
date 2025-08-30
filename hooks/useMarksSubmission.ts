@@ -5,7 +5,7 @@ import { marksService } from '../services/marksService';
 type SubmissionState = 'idle' | 'submitting' | 'success' | 'error';
 
 interface UseMarksSubmissionProps {
-  examDetails: Omit<ExamDetails, 'teacherName'>;
+  examDetails: Omit<ExamDetails, 'teacherName' | 'teacherId'>;
   studentMarks: StudentMark[];
   teacher: Teacher;
   areDetailsComplete: boolean;
@@ -59,8 +59,12 @@ export const useMarksSubmission = ({
     setSubmissionState('submitting');
     setErrorMessage('');
 
+    // ** CRITICAL FIX **
+    // This ensures the teacher's ID and name from the logged-in session
+    // are included in the data sent to the backend.
     const finalData: ExamDetails = {
       ...examDetails,
+      teacherId: teacher.id,
       teacherName: teacher.name,
     };
 

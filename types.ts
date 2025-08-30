@@ -29,6 +29,7 @@ export interface ExamDetails {
   section: string;
   subject: string;
   examDate: string;
+  teacherId: string; // Added to send to backend
   teacherName: string;
   maximumMarks: string;
 }

@@ -10,7 +10,7 @@ export const marksService = {
    */
   submitMarks: (details: ExamDetails, marks: StudentMark[]): Promise<void> => {
     // Destructure details. The 'class' property is passed directly to the backend.
-    const { examType, class: className, section, subject, examDate, maximumMarks } = details;
+    const { examType, class: className, section, subject, examDate, maximumMarks, teacherId } = details;
 
     // The backend expects a simple array of objects with the new studentId and status fields.
     const marksData = marks.map(student => ({
@@ -29,6 +29,6 @@ export const marksService = {
     }
 
     // Send the payload with 'class' as the key.
-    return api.post('submitExamMarks', { examType, class: className, section, subject, examDate: formattedDate, maximumMarks, marksData });
+    return api.post('submitExamMarks', { teacherId, examType, class: className, section, subject, examDate: formattedDate, maximumMarks, marksData });
   },
 };
