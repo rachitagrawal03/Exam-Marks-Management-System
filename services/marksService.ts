@@ -21,12 +21,31 @@ export const marksService = {
       remark: student.remark,
     }));
 
-    // Reformat date from YYYY-MM-DD to MM/DD/YYYY for submission.
-    let formattedDate = examDate;
-    if (examDate && /^\d{4}-\d{2}-\d{2}$/.test(examDate)) {
-        const [year, month, day] = examDate.split('-');
-        formattedDate = `${month}/${day}/${year}`;
+    // The date from the HTML input is expected to be in YYYY-MM-DD format.
+    // To ensure complete consistency and avoid any ambiguity, we explicitly
+    // parse and re-format it to the universal YYYY-MM-DD standard before sending.
+    // This guarantees that Google Sheets will interpret the date correctly,
+    // regardless of any regional settings in the browser or the sheet itself.
+    let formattedDate = examDate; // Default to the original value
+    try {
+      if (examDate) {
+        // The input value (e.g., '2025-10-03') is parsed as UTC midnight.
+        // To avoid timezone issues where it might shift to the previous day,
+        // we add the timezone offset to treat it as a local date.
+        const dateObj = new Date(examDate);
+        const userTimezoneOffset = dateObj.getTimezoneOffset() * 60000;
+        const localDate = new Date(dateObj.getTime() + userTimezoneOffset);
+        
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, '0');
+        const day = String(localDate.getDate()).padStart(2, '0');
+        
+        formattedDate = `${year}-${month}-${day}`;
+      }
+    } catch (e) {
+      console.error("Could not re-format date, sending original value:", examDate);
     }
+
 
     // Send the payload with 'class' as the key.
     return api.post('submitExamMarks', { teacherId, examType, class: className, section, subject, examDate: formattedDate, maximumMarks, marksData });
